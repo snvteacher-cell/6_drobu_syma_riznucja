@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Дроби крок за кроком</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;700&family=Unbounded:wght@600&family=Caveat:wght@700&display=swap">
+<style>
+/* Layout: squared exercise-book paper. The task screen is made for a phone held sideways: the example as one notebook line on the left, a digit keypad on the right. */
+:root{
+  --paper:#fbfcfe; --grid:#e1e8f3; --card:#ffffff; --line:#c9d3e3;
+  --text:#1b2433; --muted:#5b6678; --ink:#1f43a8; --ink-soft:#e7edfb;
+  --ok:#1d7a46; --okbg:#e3f3e8; --bad:#c62828; --badbg:#fde8e6; --warn:#8a5a00; --warnbg:#fff1cf;
+  --l1:#2f8f5b; --l2:#1f6fb8; --l3:#8a4fc2; --l4:#c25a1f;
+  --f-body:"Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-head:"Unbounded", "Golos Text", system-ui, sans-serif;
+  --f-hand:"Caveat", "Comic Sans MS", cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#121822; --grid:#1b2330; --card:#19212e; --line:#2d384a;
+  --text:#e6ebf3; --muted:#9aa6b8; --ink:#93b1ff; --ink-soft:#1f2b46;
+  --ok:#62d394; --okbg:#15321f; --bad:#ff7d72; --badbg:#3a1c1b; --warn:#f2c14e; --warnbg:#382d12;
+  --l1:#62d394; --l2:#7fb6ff; --l3:#c39bf0; --l4:#ffa36b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#121822; --grid:#1b2330; --card:#19212e; --line:#2d384a;
+  --text:#e6ebf3; --muted:#9aa6b8; --ink:#93b1ff; --ink-soft:#1f2b46;
+  --ok:#62d394; --okbg:#15321f; --bad:#ff7d72; --badbg:#3a1c1b; --warn:#f2c14e; --warnbg:#382d12;
+  --l1:#62d394; --l2:#7fb6ff; --l3:#c39bf0; --l4:#ffa36b; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px;color:var(--text);font:16px/1.5 var(--f-body);margin:0}
+.wrap{max-width:480px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 40px;display:flex;flex-direction:column;gap:16px}
+section{display:flex;flex-direction:column;gap:12px}
+h1,h2{font-family:var(--f-head);font-weight:600;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:1.35rem;line-height:1.25}
+h2{font-size:1.05rem}
+p{margin:0}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.muted{color:var(--muted)}
+label{font-weight:500;font-size:.95rem}
+.field{display:flex;flex-direction:column;gap:6px}
+input.txt{font:inherit;font-size:1.05rem;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);width:100%}
+input:focus-visible,button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.btn{font:inherit;font-weight:700;font-size:1.05rem;border:0;border-radius:12px;padding:14px 18px;background:var(--ink);color:var(--card);cursor:pointer;width:100%}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.err{color:var(--bad);font-size:.9rem;line-height:1.4}
+
+/* fractions */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .12em;font-variant-numeric:tabular-nums;line-height:1.15}
+.fr>span{padding:0 .18em;white-space:nowrap;display:flex;justify-content:center}
+.fr>span+span{border-top:.08em solid currentColor;margin-top:.06em;padding-top:.06em}
+.nw{white-space:nowrap}
+
+/* algorithm on the start screen */
+.algo{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:s}
+.algo li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-size:.95rem}
+.algo li::before{content:counter(s);display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ink-soft);color:var(--ink);font-weight:700;font-size:.85rem}
+.levels{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lv{border-left:4px solid var(--c);background:var(--ink-soft);border-radius:0 10px 10px 0;padding:8px 10px;font-size:.88rem;line-height:1.35}
+.lv b{display:block;color:var(--c);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+.turn{display:flex;gap:10px;align-items:center;font-size:.92rem;line-height:1.4;background:var(--ink-soft);border-radius:10px;padding:10px 12px}
+.turn svg{flex:none;width:34px;height:34px}
+
+/* the example written as one notebook line */
+.nb{font-size:clamp(1.1rem,5.4vw,1.5rem);display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.25em .3em;padding:.75em 0 .3em;font-variant-numeric:tabular-nums}
+.nb .g{display:inline-flex;align-items:center;gap:.25em;white-space:nowrap}
+.op{font-size:.9em}
+/* additional multiplier: small, above and to the left of the numerator, with the school half-bracket */
+.fm{display:inline-flex;align-items:flex-start}
+.mul{display:inline-flex;align-items:center;font-size:.62em;line-height:1;margin-top:-.75em;margin-right:.05em;color:var(--muted)}
+.mul i{font-style:normal;font-weight:500;font-size:1.2em;margin-left:.04em}
+.mul .v{font-size:1.2em}
+.slot{font:inherit;font-weight:700;display:inline-grid;place-items:center;min-width:1.9em;height:1.5em;padding:0 .15em;margin:2px 0;border-radius:7px;border:2px dashed var(--line);background:transparent;color:var(--ink);font-size:.92em;line-height:1;vertical-align:middle}
+.mul .slot{font-size:1.25em;min-width:1.8em}
+button.slot{cursor:pointer;border-color:var(--ink);background:var(--card);touch-action:manipulation}
+button.slot.act{border-style:solid;background:var(--ink-soft);box-shadow:0 0 0 3px var(--ink-soft)}
+button.slot.act:empty::after{content:"";width:2px;height:1em;background:var(--ink);animation:blink 1s steps(1) infinite}
+button.slot.fix{border-color:var(--warn);color:var(--warn);background:var(--warnbg)}
+button.slot.good{border-color:var(--ok);color:var(--ok);background:var(--okbg)}
+.slot.mir{border-color:var(--ink);border-style:dotted;color:var(--ink)}
+.v{font-weight:700}
+.v.ok{color:var(--ok)}.v.fix{color:var(--warn)}.v.show{color:var(--ink)}
+@keyframes blink{50%{opacity:0}}
+
+/* task screen */
+.tcard{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.thead{display:flex;flex-direction:column;gap:8px;min-width:0}
+.trow{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--ink-soft);color:var(--c)}
+.prow{display:flex;align-items:flex-start;gap:12px}
+.prow .eyebrow{white-space:nowrap;line-height:1}
+.prog{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pg{display:flex;flex-direction:column;gap:3px}
+.pg .bars{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.pg i{height:7px;border-radius:4px;background:var(--line)}
+.pg i.ok{background:var(--ok)}.pg i.half{background:var(--warn)}.pg i.bad{background:var(--bad)}
+.pg i.cur{background:var(--ink)}
+.pg span{font-size:.68rem;color:var(--muted);text-align:center;font-weight:500}
+.nbbox{min-width:0;overflow-x:auto;border-block:1px dashed var(--line);container-type:inline-size}
+.info{display:flex;flex-direction:column;gap:8px;min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:99px;border:1.5px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.cur{border-color:var(--ink);color:var(--ink);background:var(--ink-soft)}
+.chip.ok{border-color:var(--ok);color:var(--ok)}
+.chip.fix{border-color:var(--warn);color:var(--warn)}
+.now{font-size:.92rem;line-height:1.45}
+.now b{color:var(--ink)}
+.fb{border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;line-height:1.7;font-size:.95rem}
+.fb.ok{background:var(--okbg)}
+.fb.bad{background:var(--warnbg)}
+.fb.tip{background:var(--ink-soft)}
+.fb .head{font-weight:700;line-height:1.4}
+.note-book{font-family:var(--f-hand);font-size:1.45rem;line-height:1.1;color:var(--bad)}
+.fb.ok .head{color:var(--ok)}.fb.bad .head{color:var(--warn)}.fb.tip .head{color:var(--ink)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;align-content:start}
+.key{font:inherit;font-size:1.3rem;font-weight:700;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;min-height:46px;padding:0;touch-action:manipulation;font-variant-numeric:tabular-nums}
+.key:active{background:var(--ink-soft)}
+.key.fn{color:var(--ink);font-size:1.15rem}
+.key:disabled{opacity:.35;cursor:default}
+.pad .btn{grid-column:1/-1;padding:12px 10px}
+
+/* "turn the phone" screen, shown on a phone held upright */
+.rot{display:none;flex-direction:column;align-items:center;text-align:center;gap:14px;padding:28px 18px}
+.rot svg{width:110px;height:110px}
+.rot .phone{transform-origin:55px 55px;animation:turn 2.4s ease-in-out infinite}
+@keyframes turn{0%,25%{transform:rotate(0)}55%,100%{transform:rotate(-90deg)}}
+.ph-body{fill:var(--card);stroke:var(--ink);stroke-width:3}
+.ph-dot{fill:var(--ink)}
+.ph-arc{fill:none;stroke:var(--muted);stroke-width:2.5;stroke-dasharray:4 5}
+.linkish{font:inherit;font-size:.92rem;background:none;border:0;color:var(--ink);text-decoration:underline;cursor:pointer;padding:6px}
+@media (orientation:portrait) and (max-width:600px){
+  body:not(.port-ok) #sTask .rot{display:flex}
+  body:not(.port-ok) #sTask .tcard{display:none}
+}
+
+/* result */
+.res{border:2px solid var(--ink);gap:12px}
+.rgrid{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "grade" "cells" "home" "meta";gap:12px}
+.res-head{grid-area:head;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.who{font-size:1.3rem;font-weight:700;line-height:1.2;word-break:break-word}
+.grade{grid-area:grade;display:flex;align-items:center;gap:14px}
+.grade b{font-family:var(--f-head);font-size:3.2rem;line-height:1;color:var(--ink);min-width:1.4em;text-align:center;border:3px solid var(--ink);border-radius:16px;padding:8px 6px}
+.grade div{display:flex;flex-direction:column}
+.mark{font-family:var(--f-hand);color:var(--bad);font-size:1.9rem;line-height:1;transform:rotate(-4deg);text-align:right;max-width:45%}
+.cells{grid-area:cells;display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.cell{border-radius:8px;text-align:center;padding:5px 0;font-weight:700;font-variant-numeric:tabular-nums;font-size:.95rem}
+.cell small{display:block;font-weight:500;font-size:.7rem;color:var(--muted)}
+.cell.ok{background:var(--okbg);color:var(--ok)}
+.cell.half{background:var(--warnbg);color:var(--warn)}
+.cell.bad{background:var(--badbg);color:var(--bad)}
+.home{grid-area:home;background:var(--warnbg);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;align-self:start}
+.home h2{color:var(--warn)}
+.home ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+.home li{line-height:1.4}
+.meta{grid-area:meta;display:grid;grid-template-columns:auto 1fr;gap:3px 14px;margin:0;font-size:.92rem}
+.meta div{display:contents}
+.meta dt{color:var(--muted)}
+.meta dd{margin:0;font-weight:500}
+.note{text-align:center;color:var(--muted);font-size:.95rem}
+
+/* phone held sideways (and wide screens): two columns everywhere */
+@media (orientation:landscape) and (min-width:560px){
+  .wrap{max-width:980px;padding-block:10px 16px;gap:12px}
+  #sStart{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start}
+  .tcard{grid-template-columns:minmax(0,1fr) minmax(176px,230px);grid-template-areas:"head pad" "line pad" "info pad";gap:8px 16px;align-items:start;padding:12px 14px}
+  .thead{grid-area:head;gap:6px}.nbbox{grid-area:line}.info{grid-area:info}.pad{grid-area:pad}
+  .pg span{display:none}
+  #tNum{display:none}
+  .nb{flex-wrap:nowrap;font-size:min(1.75rem,var(--fit,5.5cqi));padding:.7em 0 .2em}
+  .nb.l4{--fit:4.65cqi}
+  .nb.mx{--fit:4.3cqi}
+  .slot{min-width:1.7em}
+  .key{min-height:42px}
+  .res{padding:14px 16px;gap:10px}
+  .rgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"head home" "grade home" "cells home" "meta home" ". home";grid-template-rows:auto auto auto auto 1fr;gap:8px 18px}
+  .meta{display:flex;flex-wrap:wrap;gap:0 14px;font-size:.8rem}
+  .who{font-size:1.15rem}.mark{font-size:1.6rem}
+  .cell{padding:2px 0}
+  .meta div{display:flex;gap:5px}
+  .home{padding:10px 12px;gap:6px;font-size:.92rem}
+  .home h2{font-size:.95rem}
+  .grade b{font-size:2.6rem}
+}
+@media (orientation:landscape) and (min-width:560px) and (max-height:430px){
+  .wrap{padding-block:6px 10px}
+  .tcard{padding:8px 12px;gap:6px 12px;grid-template-columns:minmax(0,1fr) minmax(150px,210px)}
+  .pad{gap:4px}.key{min-height:36px;font-size:1.15rem}.pad .btn{padding:9px 8px;font-size:1rem}
+  .info{gap:5px}.chip{font-size:.68rem;padding:1px 7px}.now,.fb{font-size:.86rem}.fb{line-height:1.5;padding:7px 10px}
+  .res{padding:10px 14px;gap:6px}.grade b{font-size:2.1rem;padding:5px 6px}.home{font-size:.85rem;padding:8px 12px}.home ul{gap:3px}
+  .home .tip{display:none}.res .eyebrow{font-size:.68rem}.rgrid{gap:6px 16px}.cell small{font-size:.62rem}
+}
+@media (prefers-reduced-motion: reduce){.rot .phone,button.slot.act:empty::after{animation:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<section id="sStart" hidden>
+  <div class="card">
+    <span class="eyebrow">6 клас · самостійна робота на телефоні</span>
+    <span class="muted" style="font-size:.9rem">Учитель: Сидорчук Н.В.</span>
+    <h1>Додавання і віднімання дробів з різними знаменниками</h1>
+    <p>Розв’язуй кожен приклад крок за кроком, як у зошиті. Кожен крок перевіряється одразу.</p>
+    <ol class="algo">
+      <li>Знайди найменший спільний знаменник (НСЗ), тобто НСК знаменників.</li>
+      <li>Знайди додаткові множники: НСЗ поділи на знаменник кожного дробу.</li>
+      <li>Знайди нові чисельники: помнож чисельник на додатковий множник.</li>
+      <li>Додай або відніми чисельники, знаменник залиш той самий.</li>
+      <li>Якщо можна, скороти відповідь. Якщо дріб неправильний, виділи цілу частину.</li>
+    </ol>
+    <div class="nb" id="sample" aria-label="Зразок запису"></div>
+  </div>
+  <div class="card" style="gap:12px">
+    <div class="levels">
+      <div class="lv" style="--c:var(--l1)"><b>Рівень 1</b>№1–3. Один знаменник ділиться на інший</div>
+      <div class="lv" style="--c:var(--l2)"><b>Рівень 2</b>№4–6. Взаємно прості знаменники</div>
+      <div class="lv" style="--c:var(--l3)"><b>Рівень 3</b>№7–9. Шукаємо НСК</div>
+      <div class="lv" style="--c:var(--l4)"><b>Рівень 4</b>№10–12. Скороти відповідь, виділи цілу частину</div>
+    </div>
+    <form id="fStart" novalidate style="display:flex;flex-direction:column;gap:12px">
+      <h2>Хто розв’язує?</h2>
+      <div class="field"><label for="iName">Прізвище та ім’я</label><input class="txt" id="iName" autocomplete="name" maxlength="60" placeholder="Наприклад: Коваленко Марія"></div>
+      <div class="field"><label for="iCls">Клас</label><input class="txt" id="iCls" maxlength="10" placeholder="6-А"></div>
+      <p class="err" id="startErr" hidden>Впиши прізвище та ім’я, щоб учитель знав, чия це робота.</p>
+      <div class="turn"><svg viewBox="0 0 40 40" aria-hidden="true"><rect class="ph-body" x="6" y="12" width="28" height="17" rx="3"/><circle class="ph-dot" cx="30" cy="20.5" r="1.5"/></svg><span>Під час роботи тримай телефон горизонтально: приклад уміститься в один рядок, а цифри вводитимеш на клавіатурі збоку.</span></div>
+      <p class="muted">12 прикладів. Приклад без жодної помилки дає 1 бал, з однією помилкою 0,5 бала. Якщо помилишся, отримаєш підказку і спробуєш ще раз. Кожна неправильна спроба рахується як помилка. В кінці отримаєш оцінку й поради, що повторити вдома. Зроби скріншот результату й надішли вчителю.</p>
+      <button class="btn ghost" id="bResume" type="button" hidden></button>
+      <button class="btn" type="submit">Почати</button>
+    </form>
+  </div>
+</section>
+
+<section id="sTask" hidden>
+  <div class="card rot">
+    <svg viewBox="0 0 110 110" aria-hidden="true"><path class="ph-arc" d="M20 70 A40 40 0 0 1 70 18"/><g class="phone"><rect class="ph-body" x="38" y="22" width="34" height="62" rx="6"/><circle class="ph-dot" cx="55" cy="76" r="2.5"/></g></svg>
+    <h2>Поверни телефон горизонтально</h2>
+    <p class="muted">Так приклад уміститься в один рядок, як у зошиті, а клавіатура з цифрами буде збоку.</p>
+    <button class="linkish" id="rotOk" type="button">Екран не повертається? Працювати вертикально</button>
+  </div>
+  <div class="card tcard">
+    <div class="thead">
+      <div class="trow"><span class="eyebrow" id="tNum"></span><span class="tag" id="tLvl"></span></div>
+      <div class="prow"><div class="prog" id="prog"></div><span class="eyebrow" id="tScore"></span></div>
+    </div>
+    <div class="nbbox"><div class="nb" id="nb"></div></div>
+    <div class="info">
+      <div class="chips" id="chips"></div>
+      <p class="now" id="now"></p>
+      <p class="err" id="tErr" hidden></p>
+      <div class="fb" id="tFb" hidden></div>
+    </div>
+    <div class="pad" id="pad">
+      <button class="key" type="button" data-d="7">7</button><button class="key" type="button" data-d="8">8</button><button class="key" type="button" data-d="9">9</button>
+      <button class="key" type="button" data-d="4">4</button><button class="key" type="button" data-d="5">5</button><button class="key" type="button" data-d="6">6</button>
+      <button class="key" type="button" data-d="1">1</button><button class="key" type="button" data-d="2">2</button><button class="key" type="button" data-d="3">3</button>
+      <button class="key fn" type="button" id="kBack" aria-label="Стерти цифру">⌫</button><button class="key" type="button" data-d="0">0</button><button class="key fn" type="button" id="kNext" aria-label="Наступна клітинка">→</button>
+      <button class="btn" id="tBtn" type="button">Перевірити</button>
+    </div>
+  </div>
+</section>
+
+<section id="sRes" hidden>
+  <div class="card res" id="resCard">
+    <span class="eyebrow">Додавання і віднімання дробів · 6 клас</span>
+    <div class="rgrid">
+      <div class="res-head">
+        <div style="min-width:0">
+          <div class="who" id="rName"></div>
+          <div class="muted" id="rCls"></div>
+        </div>
+        <div class="mark" id="rMark"></div>
+      </div>
+      <div class="grade"><b id="rGrade"></b><div><span style="font-weight:700" id="rScoreTxt"></span><span class="muted" id="rLevel"></span></div></div>
+      <div class="cells" id="rCells"></div>
+      <div class="home" id="rHome"></div>
+      <dl class="meta">
+        <div><dt>Учитель</dt><dd>Сидорчук Н.В.</dd></div>
+        <div><dt>Завершено</dt><dd id="rDate"></dd></div>
+        <div><dt>Час роботи</dt><dd id="rTime"></dd></div>
+        <div><dt>Помилок</dt><dd id="rMis"></dd></div>
+        <div><dt>Спроба</dt><dd id="rTry"></dd></div>
+        <div><dt>Варіант</dt><dd id="rCode"></dd></div>
+      </dl>
+    </div>
+  </div>
+  <p class="note" id="sendSt">Зроби скріншот цього екрана й надішли вчителю.</p>
+  <button class="btn ghost" id="bResend" type="button" hidden>Надіслати результат ще раз</button>
+  <button class="btn ghost" id="bAgain" type="button">Пройти ще раз</button>
+  <button class="linkish" id="bHome" type="button">На головну сторінку</button>
+</section>
+
+</div>
+
+<script>
+// LOGIC START
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a}
+function lcm(a,b){return a/gcd(a,b)*b}
+function factor(n){const f=[];let p=2;while(n>1){while(n%p===0){f.push(p);n/=p}p++}return f}
+const SUP={0:"⁰",1:"¹",2:"²",3:"³",4:"⁴",5:"⁵",6:"⁶",7:"⁷",8:"⁸",9:"⁹"};
+function powStr(n){const m=new Map();factor(n).forEach(p=>m.set(p,(m.get(p)||0)+1));
+  return[...m].map(([p,e])=>e>1?p+String(e).split("").map(c=>SUP[c]).join(""):String(p)).join(" · ")}
+function fr(n,d){return`<span class="fr"><span>${n}</span><span>${d}</span></span>`}
+function nw(s){return`<span class="nw">${s}</span>`}
+const OPS={"+":"+","-":"−"};
+
+const LEVELS=[
+  {name:"Рівень 1. Один знаменник ділиться на інший",c:"--l1"},
+  {name:"Рівень 2. Взаємно прості знаменники",c:"--l2"},
+  {name:"Рівень 3. Шукаємо НСК",c:"--l3"},
+  {name:"Рівень 4. Ще й скороти відповідь",c:"--l4"},
+];
+// Error categories, one per kind of step
+const CATS={
+  L:{name:"Найменший спільний знаменник",home:"Повтори, як знаходити НСК двох чисел."},
+  m:{name:"Додаткові множники",home:"Додатковий множник = НСЗ : знаменник."},
+  n:{name:"Нові чисельники",home:"Чисельник множимо на додатковий множник."},
+  r:{name:"Дія з чисельниками",home:"Додаємо (віднімаємо) чисельники, знаменник той самий."},
+  s:{name:"Скорочення відповіді",home:"Ділимо чисельник і знаменник на їхній НСД."},
+  w:{name:"Виділення цілої частини",home:"Чисельник ділимо на знаменник з остачею: неповна частка — ціла частина, остача — чисельник."},
+};
+
+function lcmExpl(b,d){
+  const L=lcm(b,d),[x,y]=[Math.min(b,d),Math.max(b,d)];
+  if(y%x===0)return`${y} ділиться на ${x}, тому ${nw(`НСЗ = ${y}`)}.`;
+  if(gcd(x,y)===1)return`${b} і ${d} взаємно прості, тому ${nw(`НСЗ = ${b} · ${d} = ${L}`)}.`;
+  return`${nw(`${b} = ${powStr(b)}`)}, ${nw(`${d} = ${powStr(d)}`)}, ${nw(`НСЗ = НСК(${b}, ${d}) = ${powStr(L)} = ${L}`)}.`;
+}
+
+// one task: a/b op c/d, with every intermediate value
+// mixed: the answer is an improper fraction and the last step takes out the whole part
+function build(lvl,op,a,b,c,d,mixed){
+  const L=lcm(b,d),m1=L/b,m2=L/d,n1=a*m1,n2=c*m2,r=op==="+"?n1+n2:n1-n2,g=gcd(r,L);
+  const T={lvl,op,a,b,c,d,L,m1,m2,n1,n2,r,g,rn:r/g,rd:L/g,mixed:!!mixed,W:Math.floor(r/L),rem:r%L};
+  T.steps=mixed?["L","m","n","r","w"]:lvl===3?["L","m","n","r","s"]:["L","m","n","r"];
+  return T;
+}
+
+function makeTasks(seed){
+  const R=mulberry32(seed),ri=(a,b)=>a+Math.floor(R()*(b-a+1));
+  const num=b=>{for(;;){const a=ri(1,b-1);if(gcd(a,b)===1)return a}};
+  const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  // denominators for each level: [small, big]
+  const dens=[
+    ()=>{const b=ri(2,6),k=ri(2,b<=3?5:3);return[b,b*k]},
+    ()=>{for(;;){const b=ri(2,9),d=ri(2,9);if(b<d&&gcd(b,d)===1&&b*d<=45)return[b,d]}},
+    ()=>{for(;;){const b=ri(4,15),d=ri(4,16);if(b<d&&gcd(b,d)>1&&d%b&&lcm(b,d)<=48)return[b,d]}},
+    ()=>{for(;;){const b=ri(4,15),d=ri(4,21);if(b<d&&gcd(b,d)>1&&d%b&&lcm(b,d)<=42)return[b,d]}},
+  ];
+  // no pair of denominators repeats within one run
+  // level 4 is built before level 3: few denominator pairs allow a reducible answer, so it picks first
+  const T=[],seen=new Set();
+  for(const lvl of [0,1,3,2]){
+    // task 12 is always the sum with a whole part, so level 4 shuffles only tasks 10–11
+    const ops=lvl===3?[...shuffle(["+","-"]),"+"]:shuffle(lvl===2?["-","+","-"]:["+","-","+"]);
+    ops.forEach((op,j)=>{const mixed=lvl===3&&j===2;
+      for(let tries=0;;tries++){
+        const[b,d]=dens[lvl](),a=num(b),c=num(d);
+        // the smaller denominator comes first or second at random
+        let X=[a,b],Y=[c,d];if(R()<.5)[X,Y]=[Y,X];
+        if(op==="-"&&X[0]*Y[1]<Y[0]*X[1])[X,Y]=[Y,X];
+        const t=build(lvl,op,X[0],X[1],Y[0],Y[1],mixed);
+        if(t.r<=0)continue;
+        if(mixed){if(t.r<=t.L||t.g!==1)continue}     // task 12: improper, irreducible, not a whole number
+        else{
+          if(op==="+"&&t.r>=t.L)continue;            // answer stays a proper fraction
+          if(lvl<3&&t.g!==1)continue;                // levels 1–3: nothing to reduce
+          if(lvl===3&&(t.g===1||t.rd===1))continue;  // tasks 10–11: must reduce, never to a whole number
+        }
+        const key=b+"/"+d;if(seen.has(key)&&tries<20000)continue;seen.add(key);
+        T.push(t);break;
+      }
+    });
+  }
+  return T.sort((x,y)=>x.lvl-y.lvl);
+}
+
+// Check one step. v holds the numbers typed for the step.
+// Returns {ok:true} | {ok:false} (a mistake) | {retry:"..."} (not a mistake, try again)
+function checkStep(T,k,v){
+  if(k==="L"){const x=v[0];
+    if(x===T.L)return{ok:true};
+    if(x>T.L&&x%T.b===0&&x%T.d===0)return{retry:`${x} ділиться і на ${T.b}, і на ${T.d}, тобто це спільний знаменник, але не найменший. Знайди менший.`};
+    return{ok:false}}
+  if(k==="m")return{ok:v[0]===T.m1&&v[1]===T.m2};
+  if(k==="n")return{ok:v[0]===T.n1&&v[1]===T.n2};
+  if(k==="r")return{ok:v[0]===T.r};
+  if(k==="w"){const[w,x,y]=v;
+    if(w===T.W&&x===T.rem&&y===T.L)return{ok:true};
+    if(y>0&&w*y+x===T.r&&y===T.L&&x>=y)return{retry:`Дробова частина ${fr(x,y)} має бути правильним дробом. Виділи ще одну одиницю.`};
+    return{ok:false}}
+  // k==="s": the reduced answer
+  const[x,y]=v;
+  if(x===T.rn&&y===T.rd)return{ok:true};
+  if(y>0&&x*T.L===y*T.r){
+    if(y===T.L)return{retry:`Це той самий дріб ${fr(T.r,T.L)}. Його треба скоротити: знайди НСД(${T.r}, ${T.L}).`};
+    if(y>T.L)return{retry:`Дріб ${fr(x,y)} дорівнює ${fr(T.r,T.L)}, але чисельник і знаменник збільшено. Щоб скоротити, їх треба поділити, а не помножити.`};
+    return{retry:`Правильно скорочено, але дріб ${fr(x,y)} можна скоротити ще.`}}
+  return{ok:false};
+}
+
+// A hint for a wrong step: what to do with these numbers, never the number itself
+function stepHint(T,k){
+  if(k==="L"){const[x,y]=[Math.min(T.b,T.d),Math.max(T.b,T.d)];
+    const how=y%x===0?`Подивись: чи ділиться ${y} на ${x}?`:gcd(x,y)===1?`Числа ${x} і ${y} взаємно прості. Чому тоді дорівнює їхнє НСК?`:`Розклади ${x} і ${y} на прості множники й візьми кожен множник з найбільшим показником.`;
+    return`НСЗ — це найменше число, яке ділиться і на ${T.b}, і на ${T.d}. ${how}`}
+  if(k==="m")return`Додатковий множник дорівнює НСЗ, поділеному на знаменник: обчисли ${nw(`${T.L} : ${T.b}`)} і ${nw(`${T.L} : ${T.d}`)}.`;
+  if(k==="n")return`Помнож чисельник кожного дробу на його додатковий множник: ${nw(`${T.a} · ${T.m1}`)} і ${nw(`${T.c} · ${T.m2}`)}.`;
+  if(k==="r")return`Знаменники вже однакові, тому ${T.op==="+"?"додай":"відніми"} чисельники: ${nw(`${T.n1} ${OPS[T.op]} ${T.n2}`)}. Знаменник ${T.L} не змінюється.`;
+  if(k==="w")return`Поділи ${T.r} на ${T.L} з остачею: неповна частка буде цілою частиною, остача — чисельником, а знаменник ${T.L} не змінюється.`;
+  return`Знайди НСД чисел ${T.r} і ${T.L} та поділи на нього і чисельник, і знаменник.`;
+}
+// the correct numbers of a step, shown only after MAX_TRIES wrong tries so the student can go on
+function stepAns(T,k){return{L:[T.L],m:[T.m1,T.m2],n:[T.n1,T.n2],r:[T.r],s:[T.rn,T.rd],w:[T.W,T.rem,T.L]}[k]}
+const MAX_TRIES=3;
+
+// points for one task from the number of wrong tries in it
+function pointsOf(mis){return mis===0?1:mis===1?.5:0}
+// 12 tasks; total in halves, rounded up at .5; at least 1
+function markOf(score){return Math.max(1,Math.floor(score+.5))}
+function levelOf(m){return m>=10?"високий рівень":m>=7?"достатній рівень":m>=4?"середній рівень":"початковий рівень"}
+// LOGIC END
+
+const $=s=>document.querySelector(s);
+// results go to the teacher's mailbox through FormSubmit; empty in the preview copy, which keeps the screenshot note
+const MAIL_TO="https://formsubmit.co/ajax/snv.teacher@gmail.com";
+const KEY="dod-drobiv-v2",AKEY="dod-drobiv-attempts",PKEY="dod-drobiv-portrait";
+const STEP_SHORT={L:"НСЗ",m:"Множники",n:"Чисельники",r:"Дія",s:"Скорочення",w:"Ціла частина"};
+const STEP_LBL={L:"Спільний знаменник",m:"Додаткові множники",n:"Нові чисельники",r:"Виконай дію",s:"Скороти відповідь",w:"Виділи цілу частину"};
+const STEP_NOW={
+  L:"Знайди НСЗ і впиши його в знаменник. В інших дробах він з’явиться сам.",
+  m:"Впиши маленькі числа біля дужок над чисельниками: НСЗ поділи на знаменник кожного дробу.",
+  n:"Помнож кожен чисельник на його додатковий множник.",
+  r:"Знаменники однакові, тож виконай дію з чисельниками.",
+  s:"Поділи чисельник і знаменник на їхній НСД.",
+  w:"Відповідь — неправильний дріб. Запиши її мішаним числом: ціла частина, чисельник, знаменник.",
+};
+// the blanks each step fills, in the order the keypad moves through them
+const SLOTS={L:["L"],m:["m1","m2"],n:["n1","n2"],r:["r"],s:["s1","s2"],w:["w1","w2","w3"]};
+const SLOT_LAB={L:"спільний знаменник",m1:"додатковий множник першого дробу",m2:"додатковий множник другого дробу",
+  n1:"новий чисельник першого дробу",n2:"новий чисельник другого дробу",r:"чисельник відповіді",s1:"чисельник скороченого дробу",s2:"знаменник скороченого дробу",
+  w1:"ціла частина",w2:"чисельник дробової частини",w3:"знаменник дробової частини"};
+function slotVal(T,key){return{L:T.L,L2:T.L,L3:T.L,m1:T.m1,m2:T.m2,n1:T.n1,n2:T.n2,r:T.r,s1:T.rn,s2:T.rd,w1:T.W,w2:T.rem,w3:T.L}[key]}
+
+let S=null,tasks=null,armedAgain=false,ent=null;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){return null}}
+function nextAttempt(){let n=1;try{n=(parseInt(localStorage.getItem(AKEY)||"0",10)||0)+1;localStorage.setItem(AKEY,String(n))}catch(e){}return n}
+function code(seed){return(seed>>>0).toString(36).toUpperCase().padStart(6,"0").slice(-6)}
+function show(id){["#sStart","#sTask","#sRes"].forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0)}
+function score(){return S.res.reduce((s,r)=>s+(r?r.pts:0),0)}
+function ptsStr(x){return String(x).replace(".",",")}
+function balWord(x){if(x%1)return"бала";const n=x;return n%10===1&&n%100!==11?"бал":[2,3,4].includes(n%10)&&![12,13,14].includes(n%100)?"бали":"балів"}
+
+function newCur(){return{k:0,mis:[],shown:[],tries:0,msg:null}}
+function start(name,cls){
+  const seed=(Math.random()*2**32)>>>0;
+  S={seed,name,cls,attempt:nextAttempt(),started:Date.now(),idx:0,res:[],cur:newCur(),finished:null};
+  tasks=makeTasks(seed);save();renderTask();
+}
+
+// The whole example as one notebook line with blanks.
+// st(step) says how that step's blanks look: "cur" (being filled), "ok"/"fix" (done), "future" (empty), "show" (plain sample)
+function nbLine(T,st){
+  const slot=key=>{const s=st(key[0]);
+    if(s==="cur")return key==="L2"||key==="L3"?`<span class="slot mir" data-mir aria-hidden="true"></span>`
+      :`<button type="button" class="slot" data-k="${key}" aria-label="${SLOT_LAB[key]}"></button>`;
+    if(s==="future")return`<span class="slot" aria-hidden="true"></span>`;
+    return`<b class="v ${s}">${slotVal(T,key)}</b>`};
+  const mul=key=>`<span class="mul">${slot(key)}<i>)</i></span>`,op=`<span class="op">${OPS[T.op]}</span>`,eq=`<span class="op">=</span>`;
+  let h=`<span class="g"><span class="fm">${mul("m1")}${fr(T.a,T.b)}</span>${op}<span class="fm">${mul("m2")}${fr(T.c,T.d)}</span></span>`+
+    `<span class="g">${eq}${fr(slot("n1"),slot("L"))}${op}${fr(slot("n2"),slot("L2"))}</span>`+
+    `<span class="g">${eq}${fr(slot("r"),slot("L3"))}</span>`;
+  if(T.mixed)h+=`<span class="g">${eq}${slot("w1")}${fr(slot("w2"),slot("w3"))}</span>`;
+  else if(T.lvl===3)h+=`<span class="g">${eq}${fr(slot("s1"),slot("s2"))}</span>`;
+  return h;
+}
+function stepState(T,cur,done){
+  const kMax=done?T.steps.length:cur.k;
+  return step=>{const j=T.steps.indexOf(step);if(j<0)return"future";
+    if(j<kMax)return cur.mis.includes(j)||cur.shown.includes(j)?"fix":"ok";
+    return j===kMax?"cur":"future"};
+}
+
+function renderProg(){
+  $("#prog").innerHTML=[0,1,2,3].map(l=>`<div class="pg"><div class="bars">${[0,1,2].map(j=>{const i=l*3+j,r=S.res[i];
+    const c=r?(r.pts===1?"ok":r.pts?"half":"bad"):i===S.idx&&!S.finished?"cur":"";return`<i class="${c}"></i>`}).join("")}</div><span>Рівень ${l+1}</span></div>`).join("");
+}
+
+function renderTask(){
+  show("#sTask");
+  const T=tasks[S.idx],done=!!S.res[S.idx],cur=done?S.res[S.idx]:S.cur,st=stepState(T,cur,done);
+  $("#tNum").textContent=`Приклад ${S.idx+1} з ${tasks.length}`;
+  $("#tScore").textContent=`Балів: ${ptsStr(score())}`;
+  renderProg();
+  const lv=LEVELS[T.lvl],tag=$("#tLvl");tag.textContent=T.mixed?"Рівень 4. Виділи цілу частину":lv.name;tag.style.setProperty("--c",`var(${lv.c})`);
+  $("#nb").innerHTML=nbLine(T,st);$("#nb").classList.toggle("l4",T.lvl===3&&!T.mixed);$("#nb").classList.toggle("mx",T.mixed);
+  $("#chips").innerHTML=T.steps.map((k,j)=>{const s=st(k);return`<span class="chip ${s}">${j+1}. ${STEP_SHORT[k]}${s==="ok"?" ✓":""}</span>`}).join("");
+  $("#tErr").hidden=true;const fb=$("#tFb");fb.hidden=true;
+  if(done){
+    ent=null;$("#now").hidden=true;
+    const n=cur.mis.length;fb.className="fb "+(n===0?"ok":"bad");
+    fb.innerHTML=(cur.msg||"")+`<p class="head">${n===0?"Без жодної помилки! +1 бал":n===1?"Одна помилка: +0,5 бала":`Помилок у прикладі: ${n}. Цей приклад без балів.`}</p><p class="note-book">✍ Запиши завдання в зошит!</p>`;
+    fb.hidden=false;
+  }else{
+    const k=T.steps[cur.k];
+    $("#now").innerHTML=`<b>${STEP_LBL[k]}.</b> ${STEP_NOW[k]}`;
+    $("#now").hidden=!!cur.msg&&cur.msgFor===cur.k;
+    if(cur.msg){fb.className="fb tip";fb.innerHTML=cur.msg;fb.hidden=false}
+    ent={keys:SLOTS[k],vals:{},act:SLOTS[k][0]};
+    document.querySelectorAll("#nb button.slot").forEach(b=>b.onclick=()=>{ent.act=b.dataset.k;$("#tErr").hidden=true;paintEntry()});
+    paintEntry();
+  }
+  document.querySelectorAll("#pad .key").forEach(b=>b.disabled=done);
+  $("#kNext").disabled=done||ent.keys.length<2;
+  $("#tBtn").textContent=done?(S.idx<tasks.length-1?"Наступний приклад →":"Побачити результат"):"Перевірити";
+}
+
+// on-screen keypad (and a physical keyboard) types into the active blank
+function slotBtn(key){return document.querySelector(`#nb button.slot[data-k="${key}"]`)}
+function paintEntry(){
+  if(!ent)return;
+  ent.keys.forEach(key=>{const b=slotBtn(key);if(!b)return;b.textContent=ent.vals[key]||"";b.classList.toggle("act",key===ent.act)});
+  document.querySelectorAll("#nb [data-mir]").forEach(m=>m.textContent=ent.vals.L||"");
+}
+function live(){return ent&&S&&!S.res[S.idx]}
+function press(d){if(!live())return;const k=ent.act;let s=ent.vals[k]||"";if(s.length>=3)return;if(s==="0")s="";
+  ent.vals[k]=s+d;slotBtn(k).classList.remove("fix","good");$("#tErr").hidden=true;paintEntry()}
+function back(){if(!live())return;const k=ent.act;ent.vals[k]=(ent.vals[k]||"").slice(0,-1);slotBtn(k).classList.remove("fix","good");paintEntry()}
+function move(dir){if(!live())return;const n=ent.keys.length,i=ent.keys.indexOf(ent.act);ent.act=ent.keys[(i+dir+n)%n];paintEntry()}
+
+function err(msg){const e=$("#tErr");e.innerHTML=msg;e.hidden=false}
+
+function check(){
+  const T=tasks[S.idx],cur=S.cur,k=T.steps[cur.k];
+  const v=ent.keys.map(key=>{const s=ent.vals[key]||"";return/^\d+$/.test(s)?parseInt(s,10):NaN});
+  const empty=ent.keys.find((key,i)=>isNaN(v[i]));
+  if(empty){ent.act=empty;paintEntry();return err(ent.keys.length>1?"Заповни всі клітинки.":"Впиши число.")}
+  const r=checkStep(T,k,v);
+  if(r.retry){$("#tFb").hidden=true;return err(r.retry)}
+  if(!r.ok){
+    cur.mis.push(cur.k);cur.tries++;
+    if(cur.tries<MAX_TRIES){
+      // stay on the step: mark the wrong blanks, give a hint, keep what was typed
+      const want=stepAns(T,k);
+      ent.keys.forEach((key,i)=>{const b=slotBtn(key);b.classList.toggle("fix",v[i]!==want[i]);b.classList.toggle("good",v[i]===want[i])});
+      ent.act=ent.keys.find((key,i)=>v[i]!==want[i])||ent.keys[0];paintEntry();
+      cur.msg=`<p class="head">Неправильно. Спроба ${cur.tries+1} з ${MAX_TRIES}</p><p>${stepHint(T,k)}</p>`;
+      cur.msgFor=cur.k;$("#now").hidden=true;
+      save();$("#tErr").hidden=true;const fb=$("#tFb");fb.className="fb tip";fb.innerHTML=cur.msg;fb.hidden=false;
+      return;
+    }
+    cur.shown.push(cur.k);
+    cur.msg=`<p class="head">Три спроби не вдалися, тому правильні числа вписано, щоб можна було йти далі.</p><p>${stepHint(T,k)}</p>`;
+  }else cur.msg=null;
+  cur.tries=0;cur.k++;
+  if(cur.k>=T.steps.length){
+    S.res[S.idx]={mis:cur.mis.slice(),shown:cur.shown.slice(),msg:cur.msg,cats:[...new Set(cur.mis.map(j=>T.steps[j]))],pts:pointsOf(cur.mis.length)};
+    S.cur=newCur();
+  }
+  save();renderTask();
+}
+
+function onBtn(){
+  if(!S.res[S.idx])return check();
+  if(S.idx<tasks.length-1){S.idx++;save();renderTask()}
+  else{S.finished=S.finished||Date.now();save();renderRes()}
+}
+
+let sending=false;
+function sendResult(){
+  if(!MAIL_TO||sending)return;sending=true;
+  const st=$("#sendSt"),again=$("#bResend");
+  st.textContent="Надсилаю результат учителю…";again.hidden=true;
+  const sc=score(),m=markOf(sc);
+  const cnt={};S.res.forEach((r,i)=>r.cats.forEach(c=>{(cnt[c]=cnt[c]||[]).push(i+1)}));
+  const body={
+    _subject:`Дроби: ${S.name}${S.cls?", "+S.cls:""} — оцінка ${m}`,_template:"table",_captcha:"false",
+    "Учень":S.name,"Клас":S.cls||"—","Оцінка":String(m),"Бали":`${ptsStr(sc)} з ${tasks.length}`,
+    "Приклади":S.res.map((r,i)=>`№${i+1} ${r.pts===1?"✓":r.pts?"½":"✗"}`).join("  "),
+    "Попрацювати вдома":Object.keys(cnt).map(c=>`${CATS[c].name} (№${cnt[c].join(", №")})`).join("; ")||"—",
+    "Помилок":String(S.res.reduce((s,r)=>s+r.mis.length,0)),"Завершено":$("#rDate").textContent,"Час роботи":$("#rTime").textContent,
+    "Спроба":`№${S.attempt}`,"Варіант":code(S.seed)};
+  const att=S.attempt,seed=S.seed;
+  fetch(MAIL_TO,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(body)})
+    .then(r=>r.json().then(j=>{if(!r.ok||String(j.success)!=="true")throw new Error(j.message||r.status)}))
+    .then(()=>{sending=false;if(S.seed!==seed||S.attempt!==att)return;S.sent=true;save();st.textContent="✓ Результат надіслано вчителю на пошту."})
+    .catch(()=>{sending=false;if(S.seed!==seed)return;st.textContent="Не вдалося надіслати результат. Перевір інтернет і натисни «Надіслати результат ще раз» або зроби скріншот цього екрана й надішли вчителю.";again.hidden=false});
+}
+$("#bResend").addEventListener("click",sendResult);
+
+function renderRes(){
+  show("#sRes");armedAgain=false;ent=null;$("#bAgain").textContent="Пройти ще раз";
+  const sc=score(),n=tasks.length,m=markOf(sc);
+  $("#rName").textContent=S.name;
+  $("#rCls").textContent=S.cls?`Клас: ${S.cls}`:"";
+  $("#rGrade").textContent=String(m);
+  $("#rScoreTxt").textContent=`Оцінка: ${m} · ${ptsStr(sc)} ${balWord(sc)} з ${n}`;
+  $("#rLevel").textContent=levelOf(m);
+  $("#rMark").textContent=sc===n?"Бездоганно!":sc>=10?"Молодець!":sc>=7?"Добре":"Повтори правило";
+  $("#rCells").innerHTML=S.res.map((r,i)=>`<div class="cell ${r.pts===1?"ok":r.pts?"half":"bad"}"><small>№${i+1}</small>${r.pts===1?"✓":r.pts?"½":"✗"}</div>`).join("");
+  const cnt={};S.res.forEach((r,i)=>r.cats.forEach(c=>{(cnt[c]=cnt[c]||new Set()).add(i+1)}));
+  const miss=Object.keys(CATS).filter(c=>cnt[c]);
+  $("#rHome").innerHTML=miss.length?`<h2>Попрацюй удома над кроками</h2><ul>${miss.map(c=>`<li><b>${CATS[c].name}</b> (${[...cnt[c]].map(i=>"№"+i).join(", ")})<span class="tip">. ${CATS[c].home}</span></li>`).join("")}</ul>`
+    :`<h2>Удома повторювати нічого не треба</h2><p>Усі кроки засвоєно. Додаткове завдання: придумай задачу з життя, де треба додати два дроби з різними знаменниками, і розв’яжи її.</p>`;
+  const dt=new Date(S.finished);
+  $("#rDate").textContent=dt.toLocaleDateString("uk-UA",{day:"numeric",month:"long",year:"numeric"})+", "+dt.toLocaleTimeString("uk-UA",{hour:"2-digit",minute:"2-digit"});
+  const sec=Math.max(1,Math.round((S.finished-S.started)/1000));
+  $("#rTime").textContent=`${Math.floor(sec/60)} хв ${sec%60} с`;
+  $("#rMis").textContent=String(S.res.reduce((s,r)=>s+r.mis.length,0));
+  $("#rTry").textContent=`№${S.attempt}`;
+  $("#rCode").textContent=code(S.seed);
+  if(S.sent){$("#sendSt").textContent="✓ Результат надіслано вчителю на пошту.";$("#bResend").hidden=true}
+  else sendResult();
+}
+
+document.querySelectorAll("#pad [data-d]").forEach(b=>b.addEventListener("click",()=>press(b.dataset.d)));
+$("#kBack").addEventListener("click",back);
+$("#kNext").addEventListener("click",()=>move(1));
+$("#tBtn").addEventListener("click",onBtn);
+document.addEventListener("keydown",e=>{
+  if($("#sTask").hidden||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==="Enter"){if(e.target.id==="tBtn"||e.target.id==="rotOk")return;e.preventDefault();onBtn();return}
+  if(!live())return;
+  if(/^[0-9]$/.test(e.key)){e.preventDefault();press(e.key)}
+  else if(e.key==="Backspace"){e.preventDefault();back()}
+  else if(e.key==="Tab"){e.preventDefault();move(e.shiftKey?-1:1)}
+  else if(e.key==="ArrowRight"){e.preventDefault();move(1)}
+  else if(e.key==="ArrowLeft"){e.preventDefault();move(-1)}
+});
+$("#rotOk").addEventListener("click",()=>{document.body.classList.add("port-ok");try{localStorage.setItem(PKEY,"1")}catch(e){}});
+$("#fStart").addEventListener("submit",e=>{
+  e.preventDefault();const name=$("#iName").value.trim().replace(/\s+/g," ");
+  if(name.length<2){$("#startErr").hidden=false;$("#iName").focus();return}
+  start(name,$("#iCls").value.trim());
+});
+$("#bAgain").addEventListener("click",()=>{
+  if(!armedAgain){armedAgain=true;$("#bAgain").textContent="Натисни ще раз, щоб почати нову спробу";return}
+  start(S.name,S.cls);
+});
+
+// the start page always opens first; a saved attempt can be continued from it
+function home(){
+  const b=$("#bResume");
+  if(S){b.hidden=false;b.textContent=S.finished?"Переглянути мій результат":`Продовжити: приклад ${S.idx+1} з ${tasks.length}`}
+  else b.hidden=true;
+  show("#sStart");
+}
+$("#bResume").addEventListener("click",()=>{if(S.finished)renderRes();else renderTask()});
+$("#bHome").addEventListener("click",home);
+
+(function boot(){
+  try{if(localStorage.getItem(PKEY))document.body.classList.add("port-ok")}catch(e){}
+  $("#sample").innerHTML=nbLine(build(2,"+",1,6,3,8),()=>"show");
+  const s=load();
+  if(s&&s.seed!=null&&Array.isArray(s.res)&&s.cur){S=s;tasks=makeTasks(S.seed);
+    $("#iName").value=S.name||"";$("#iCls").value=S.cls||"";
+  }
+  home();
+})();
+</script>
+</body>
+</html>
